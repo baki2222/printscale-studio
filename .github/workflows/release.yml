@@ -90,13 +90,14 @@ jobs:
         run: |
           set -euo pipefail
           VERSION="${TAG#v}"
-          cd release
+          W="$GITHUB_WORKSPACE"
+          cd "$W/release/release-v$VERSION"   # the artifact keeps the build's dist/release-v<version> folder
           sha256sum -c SHA256SUMS.txt
-          python3 ../scripts/release_notes.py "$VERSION" > ../notes.md
-          gh release create "$TAG" --draft --verify-tag --title "PrintScale Studio $VERSION" --notes-file ../notes.md \
-            PrintScaleStudio_Setup_v"$VERSION".exe PrintScaleStudio_v"$VERSION"_Windows_x64_Portable.zip \
-            SHA256SUMS.txt DEPENDENCIES.json BUILD-INFO.json
-          mkdir ../check && cd ../check
+          python3 "$W/scripts/release_notes.py" "$VERSION" > "$W/notes.md"
+          FILES=("PrintScaleStudio_Setup_v$VERSION.exe" "PrintScaleStudio_v${VERSION}_Windows_x64_Portable.zip"
+                 SHA256SUMS.txt DEPENDENCIES.json BUILD-INFO.json)
+          gh release create "$TAG" --draft --verify-tag --title "PrintScale Studio $VERSION" --notes-file "$W/notes.md" "${FILES[@]}"
+          mkdir "$W/check" && cd "$W/check"
           gh release download "$TAG" --pattern '*'
           sha256sum -c SHA256SUMS.txt
           gh release edit "$TAG" --draft=false --latest
