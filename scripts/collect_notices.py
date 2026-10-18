@@ -72,8 +72,7 @@ def write_openssl_notice(app_folder, dest):
     lines = "\n".join(f"  {name}: {ver}" for name, ver in versions.items())
     open(os.path.join(dest, "OpenSSL-NOTICE.txt"), "w", encoding="utf-8").write(
         "OpenSSL\n=======\n\nThis package contains OpenSSL libraries shipped with the Python runtime:\n"
-        f"{lines}\n\nCopyright (c) 1998-2025 The OpenSSL Project Authors.\n"
-        "Copyright (c) 1995-1998 Eric A. Young, Tim J. Hudson. All rights reserved.\n\n"
+        f"{lines}\n\nCopyright The OpenSSL Project Authors. All Rights Reserved.\n\n"
         "Licensed under the Apache License 2.0 (LICENSES/Apache-2.0.txt). Source: https://www.openssl.org/source/\n")
     return ", ".join(sorted(set(versions.values())))
 
