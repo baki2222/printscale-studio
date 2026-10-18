@@ -1,0 +1,23 @@
+# Exact versions of all packages (direct and transitive) used for tests and release builds.
+# Install with: pip install -r requirements-dev.txt -c constraints.txt
+altgraph==0.17.5
+colorama==0.4.6
+flatbuffers==25.12.19
+iniconfig==2.3.1
+mpmath==1.3.0
+numpy==2.4.6
+onnxruntime-directml==1.24.4
+packaging==26.3
+pefile==2024.8.26
+pillow==13.0.0
+pluggy==1.7.0
+protobuf==7.36.2
+Pygments==2.21.0
+pyinstaller==6.22.3
+pyinstaller-hooks-contrib==2026.8
+PySide6_Essentials==6.12.0
+pytest==9.1.1
+pywin32-ctypes==0.2.3
+ruff==0.17.1
+shiboken6==6.12.0
+sympy==1.14.0

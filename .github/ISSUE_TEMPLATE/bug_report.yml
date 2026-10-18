@@ -1,0 +1,74 @@
+name: Bug report
+description: Something does not work as described in the documentation.
+labels: ["bug", "needs-reproduction"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting! Please do **not** report security problems here; see SECURITY.md.
+        Only attach images you have the right to share. A small generated test image that shows the
+        problem is ideal. Remove personal information from screenshots and paths.
+  - type: input
+    id: version
+    attributes:
+      label: PrintScale Studio version
+      description: Shown in the title bar and in Help › About.
+      placeholder: "1.0.6"
+    validations:
+      required: true
+  - type: dropdown
+    id: package
+    attributes:
+      label: How did you install it?
+      options: [Installer, Portable ZIP, Running from source]
+    validations:
+      required: true
+  - type: input
+    id: windows
+    attributes:
+      label: Windows version and display scaling
+      description: "Settings › System › About (for example: Windows 11 24H2, 150%)."
+    validations:
+      required: true
+  - type: dropdown
+    id: mode
+    attributes:
+      label: Processing mode
+      options: [Preserve Artwork, AI Illustration, AI Photo, DPI metadata only, Not related to processing]
+    validations:
+      required: true
+  - type: input
+    id: size
+    attributes:
+      label: Input and output
+      description: Input format and pixel size; output size (pixels or print size), DPI and format.
+      placeholder: "PNG 1200 × 1372 px with transparency → 4200 × 4800 px, 300 DPI, PNG"
+  - type: input
+    id: device
+    attributes:
+      label: CPU / GPU
+      description: The device shown in the status bar or export summary, and your GPU model if any.
+      placeholder: "DirectML (NVIDIA GeForce RTX 3060)"
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: The smallest set of steps that shows the problem.
+      placeholder: |
+        1. Add the attached image
+        2. Choose ...
+        3. Export Selected
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect, and what happened instead?
+      description: Include the exact error message or export summary text if there is one.
+    validations:
+      required: true
+  - type: textarea
+    id: extra
+    attributes:
+      label: Screenshots or sample file
+      description: Drag files here. Please use images you are allowed to share.

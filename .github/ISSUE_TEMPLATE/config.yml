@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Report a security vulnerability
+    url: https://github.com/baki2222/printscale-studio/security/advisories/new
+    about: Please report security problems privately.
+  - name: Troubleshooting guide
+    url: https://github.com/baki2222/printscale-studio/blob/main/docs/TROUBLESHOOTING.md
+    about: GPU/CPU fallback, DPI questions, icon caching and known limitations.

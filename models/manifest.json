@@ -1,0 +1,47 @@
+{
+  "manifest_version": 1,
+  "model_set": "models-v1",
+  "description": "ONNX models used by PrintScale Studio's AI modes. Converted from the official Real-ESRGAN PyTorch checkpoints with scripts/convert_torch_to_onnx.py.",
+  "license": "BSD-3-Clause (Real-ESRGAN, Copyright (c) 2021, Xintao Wang). See LICENSES/Real-ESRGAN-BSD-3-Clause.txt.",
+  "models": [
+    {
+      "id": "illustration_anime_6b",
+      "mode": "AI Illustration",
+      "file": "RealESRGAN_x4plus_anime_6B.onnx",
+      "bytes": 17939979,
+      "sha256": "6b04d9c09399e24f2ad6171246f2c21da3571383561f46a4bb93b1f4c18af40f",
+      "url": "https://github.com/baki2222/printscale-studio/releases/download/models-v1/RealESRGAN_x4plus_anime_6B.onnx",
+      "architecture": "RRDBNet, 6 RRDB blocks, x4",
+      "checkpoint": {
+        "file": "RealESRGAN_x4plus_anime_6B.pth",
+        "upstream_release": "Real-ESRGAN v0.2.2.4",
+        "bytes": 17938799,
+        "sha256": "f872d837d3c90ed2e05227bed711af5671a6fd1c9f7d7e91c911a61f155e99da",
+        "url": "https://github.com/xinntao/Real-ESRGAN/releases/download/v0.2.2.4/RealESRGAN_x4plus_anime_6B.pth"
+      }
+    },
+    {
+      "id": "photo_x4plus",
+      "mode": "AI Photo",
+      "file": "RealESRGAN_x4plus.onnx",
+      "bytes": 67051654,
+      "sha256": "ec45cb356739c0086893db4e6fcfefb3dc0af087816a13175cae2386532db8ff",
+      "url": "https://github.com/baki2222/printscale-studio/releases/download/models-v1/RealESRGAN_x4plus.onnx",
+      "architecture": "RRDBNet, 23 RRDB blocks, x4",
+      "checkpoint": {
+        "file": "RealESRGAN_x4plus.pth",
+        "upstream_release": "Real-ESRGAN v0.1.0",
+        "bytes": 67040989,
+        "sha256": "4fa0d38905f75ac06eb49a7951b426670021be3018265fd191d2125df9d682f1",
+        "url": "https://github.com/xinntao/Real-ESRGAN/releases/download/v0.1.0/RealESRGAN_x4plus.pth"
+      }
+    }
+  ],
+  "conversion": {
+    "script": "scripts/convert_torch_to_onnx.py",
+    "tools": {"python": "3.11", "torch": "2.14.1", "onnx": "1.23.2", "onnxruntime-directml": "1.24.4"},
+    "exporter": "torch.onnx.export (TorchScript exporter, dynamo=False), opset 17, dynamic batch/height/width",
+    "validation": "onnx.checker plus PyTorch vs ONNX Runtime CPU on a random 48x48 input; max absolute difference must be < 1e-4",
+    "determinism": "Numerical parity is checked. Byte-for-byte identical ONNX files are not guaranteed across torch/onnx versions; the published files are pinned by SHA-256."
+  }
+}

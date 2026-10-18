@@ -1,0 +1,42 @@
+[project]
+name = "printscale-studio"
+dynamic = ["version"]
+description = "Offline Windows image upscaler and print export app with transparent PNG support, AI enhancement, and 300-600 DPI controls."
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE", "THIRD_PARTY_LICENSES.md", "LICENSES/*.txt"]
+authors = [{ name = "Baki Billah" }]
+requires-python = ">=3.11,<3.12"
+classifiers = [
+    "Operating System :: Microsoft :: Windows :: Windows 11",
+    "Programming Language :: Python :: 3.11",
+    "Environment :: Win32 (MS Windows)",
+    "Topic :: Multimedia :: Graphics",
+]
+
+[project.urls]
+Homepage = "https://github.com/baki2222/printscale-studio"
+Issues = "https://github.com/baki2222/printscale-studio/issues"
+
+# Dependencies are pinned in requirements*.txt and constraints.txt; this project is an application,
+# not a library published to a package index.
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "gpu: needs a DirectX 12 GPU usable by DirectML; skipped when none is available",
+]
+addopts = "-ra"
+
+[tool.ruff]
+line-length = 130
+target-version = "py311"
+extend-exclude = ["build", "dist", "models"]
+
+[tool.ruff.lint]
+# Correctness checks: syntax errors, undefined names, unused imports/variables, comparison mistakes.
+select = ["E9", "F"]
+
+[tool.ruff.lint.per-file-ignores]
+# Some acceptance tests keep intermediate values for readability.
+"tests/*" = ["F841"]
