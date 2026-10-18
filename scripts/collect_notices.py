@@ -50,6 +50,34 @@ def copy_dist_licenses(dist_name, dest):
     return d, out, copied
 
 
+def write_openssl_notice(app_folder, dest):
+    """Python's Windows runtime ships OpenSSL 3 (Apache-2.0). Record the exact DLL versions next to the license."""
+    import glob
+    import pefile
+    dlls = sorted(glob.glob(os.path.join(app_folder, "_internal", "lib*ssl*-3*.dll")) +
+                  glob.glob(os.path.join(app_folder, "_internal", "libcrypto-3*.dll")))
+    if not dlls:
+        return None
+    versions = {}
+    for p in dlls:
+        pe = pefile.PE(p, fast_load=True)
+        pe.parse_data_directories([pefile.DIRECTORY_ENTRY["IMAGE_DIRECTORY_ENTRY_RESOURCE"]])
+        info = {}
+        for fi in getattr(pe, "FileInfo", None) or []:
+            for entry in fi:
+                for st in getattr(entry, "StringTable", []):
+                    info.update({k.decode(): v.decode(errors="replace") for k, v in st.entries.items()})
+        pe.close()
+        versions[os.path.basename(p)] = info.get("ProductVersion") or info.get("FileVersion") or "unknown"
+    lines = "\n".join(f"  {name}: {ver}" for name, ver in versions.items())
+    open(os.path.join(dest, "OpenSSL-NOTICE.txt"), "w", encoding="utf-8").write(
+        "OpenSSL\n=======\n\nThis package contains OpenSSL libraries shipped with the Python runtime:\n"
+        f"{lines}\n\nCopyright (c) 1998-2025 The OpenSSL Project Authors.\n"
+        "Copyright (c) 1995-1998 Eric A. Young, Tim J. Hudson. All rights reserved.\n\n"
+        "Licensed under the Apache License 2.0 (LICENSES/Apache-2.0.txt). Source: https://www.openssl.org/source/\n")
+    return ", ".join(sorted(set(versions.values())))
+
+
 def write_qt_notice(path, qt_version):
     text = f"""Qt {qt_version} and Qt for Python (PySide6 {qt_version}) in this package
 ==============================================================
@@ -104,9 +132,9 @@ def collect(app_folder, strict=False):
     py_license = os.path.join(sys.base_prefix, "LICENSE.txt")
     shutil.copy2(py_license, os.path.join(dest, "Python-LICENSE.txt"))
     py_text = open(py_license, encoding="utf-8", errors="replace").read()
-    for lib in ("OpenSSL", "libffi"):
-        if lib.lower() not in py_text.lower():
-            problems.append(f"Python LICENSE.txt does not mention {lib} (use a python.org build for releases)")
+    if "libffi" not in py_text.lower():
+        problems.append("Python LICENSE.txt does not mention libffi (use a python.org build for releases)")
+    openssl = write_openssl_notice(app_folder, dest)
 
     inventory = []
     for name, role in BUNDLED.items():
@@ -128,7 +156,11 @@ def collect(app_folder, strict=False):
     inventory.append({"name": "Python", "version": sys.version.split()[0], "license": "PSF-2.0",
                       "role": "interpreter runtime (python311.dll, standard library)", "bundled": True,
                       "license_files": ["Python-LICENSE.txt"]})
-    inventory.append({"name": "DirectML", "version": "1.15.4 (as shipped in onnxruntime-directml)",
+    if openssl:
+        inventory.append({"name": "OpenSSL", "version": openssl, "license": "Apache-2.0",
+                          "role": "libcrypto/libssl shipped with the Python runtime", "bundled": True,
+                          "license_files": ["OpenSSL-NOTICE.txt", "LICENSES/Apache-2.0.txt"]})
+    inventory.append({"name": "DirectML","version": "1.15.4 (as shipped in onnxruntime-directml)",
                       "license": "Microsoft Software License Terms (DirectML)", "role": "GPU inference on DirectX 12",
                       "bundled": True, "license_files": ["LICENSES/DirectML-1.15.4-LICENSE.txt"]})
     inventory.append({"name": "Real-ESRGAN models (converted to ONNX)", "version": "models-v1", "license": "BSD-3-Clause",

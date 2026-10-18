@@ -15,7 +15,8 @@ model weights under their own terms. Every release package ships these texts in 
 | DirectML (`DirectML.dll`, inside `onnxruntime-directml`) | 1.15.4 | Microsoft Software License Terms (DirectML) | Redistributed as shipped by Microsoft for use on Windows. [License](LICENSES/DirectML-1.15.4-LICENSE.txt) and [notices](LICENSES/DirectML-1.15.4-ThirdPartyNotices.txt), taken from the official `Microsoft.AI.DirectML` 1.15.4 package. |
 | NumPy (with bundled OpenBLAS) | 2.4.6 | BSD-3-Clause and others | The wheel's license files are shipped. |
 | Pillow | 13.0.0 | MIT-CMU | The wheel's license file is shipped. |
-| Python runtime and standard library | 3.11 | PSF-2.0 (with notices for OpenSSL, libffi, bzip2, …) | Python's `LICENSE.txt` is shipped. |
+| Python runtime and standard library | 3.11 | PSF-2.0 (with notices for libffi, bzip2, …) | Python's `LICENSE.txt` is shipped. |
+| OpenSSL (`libcrypto`, `libssl`, shipped with Python) | 3.x | Apache-2.0 | `licenses\OpenSSL-NOTICE.txt` records the exact version; [license text](LICENSES/Apache-2.0.txt). |
 | PyInstaller bootloader | 6.22.3 | GPL-2.0-or-later with the PyInstaller bootloader exception | The exception allows distributing the bootloader with programs under any license. |
 | Real-ESRGAN models, converted to ONNX | models-v1 | BSD-3-Clause | See "Model weights" below. |
 | Wordmark lettering in the logo | n/a | Bitstream Vera / DejaVu font license | The outlines are derived from DejaVu Sans. [License text](LICENSES/DejaVu-Bitstream-Vera-FONT_LICENSE.txt). |
