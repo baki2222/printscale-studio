@@ -1,0 +1,102 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*.*.*"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build and verify ${{ github.ref_name }}
+    runs-on: windows-2025
+    timeout-minutes: 90
+    permissions:
+      contents: read
+      id-token: write       # build-provenance attestation
+      attestations: write
+    env:
+      PYTHONUTF8: "1"
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.11"
+      - name: Install dependencies (no cache for release builds)
+        run: python -m pip install -r requirements-dev.txt -c constraints.txt
+      - name: Check tag matches the app version
+        shell: pwsh
+        run: |
+          $v = python -c "import printscale; print(printscale.__version__)"
+          if ("v$v" -ne "${{ github.ref_name }}") { throw "Tag ${{ github.ref_name }} does not match __version__ $v" }
+          python scripts/release_notes.py $v > $null
+      - name: Lint
+        run: python -m ruff check .
+      - name: Fetch and verify models
+        run: python scripts/fetch_models.py
+      - name: Tests
+        env:
+          QT_QPA_PLATFORM: offscreen
+        run: python -m pytest
+      - name: Ensure Inno Setup 6
+        shell: pwsh
+        run: |
+          $iscc = @("${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe", "$env:ProgramFiles\Inno Setup 6\ISCC.exe") | Where-Object { Test-Path $_ } | Select-Object -First 1
+          if (-not $iscc) { choco install innosetup -y --no-progress }
+      - name: Build installer and portable ZIP
+        run: python scripts/build_package.py --release
+      - name: Packaged smoke test
+        run: python scripts/packaged_smoke.py dist\PrintScaleStudio\PrintScaleStudio.exe --work "${{ runner.temp }}"
+      - name: Attest build provenance
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: |
+            dist/release-v*/PrintScaleStudio_Setup_v*.exe
+            dist/release-v*/PrintScaleStudio_v*_Windows_x64_Portable.zip
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: release-files
+          path: dist/release-v*/
+          if-no-files-found: error
+          retention-days: 30
+
+  publish:
+    name: Publish GitHub release
+    needs: build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: release-files
+          path: release
+      - name: Create draft, upload, verify, publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          VERSION="${TAG#v}"
+          cd release
+          sha256sum -c SHA256SUMS.txt
+          python3 ../scripts/release_notes.py "$VERSION" > ../notes.md
+          gh release create "$TAG" --draft --verify-tag --title "PrintScale Studio $VERSION" --notes-file ../notes.md \
+            PrintScaleStudio_Setup_v"$VERSION".exe PrintScaleStudio_v"$VERSION"_Windows_x64_Portable.zip \
+            SHA256SUMS.txt DEPENDENCIES.json BUILD-INFO.json
+          mkdir ../check && cd ../check
+          gh release download "$TAG" --pattern '*'
+          sha256sum -c SHA256SUMS.txt
+          gh release edit "$TAG" --draft=false --latest
