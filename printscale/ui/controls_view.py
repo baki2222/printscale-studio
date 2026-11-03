@@ -17,12 +17,18 @@ from PySide6.QtGui import QColor, QPixmap, QIcon, QPainter
 
 from printscale.core.geometry import (
     DimensionMode, PhysicalUnit, CompositionMode, CropAlignment,
-    calculate_target_pixels, calculate_physical_size, plan_canvas_sizing, estimate_job_memory_bytes
+    calculate_target_pixels, calculate_physical_size, plan_canvas_sizing, estimate_job_memory_bytes,
+    MAX_CANVAS_AXIS_PX
 )
 from printscale.core.metadata import ImageMetadataInfo
 from printscale.core.enhancement import ProcessingMode
 from printscale.core.config import UPLOAD_MAX_PIXELS_PER_AXIS, AppConfig
 from printscale.ui.widgets import FlowLayout, CollapsibleSection, hline
+
+# DPI segment buttons; any other value from CUSTOM_DPI_RANGE is entered with the Custom button
+PRESET_DPIS = (300, 400, 500, 600, 800, 1000)
+CUSTOM_DPI_RANGE = (72, 1200)  # same range the settings file accepts
+CUSTOM_DPI_ID = 0              # button-group id of the Custom button (never a valid DPI)
 
 PANEL_MIN_WIDTH = 286
 
@@ -229,18 +235,36 @@ class ControlsView(QWidget):
         fl.addWidget(_label("Print resolution (DPI)", "muted", parent=box))
         dpi_flow = FlowLayout(None, 6, 6)
         self.dpi_group = QButtonGroup(box)
-        for dpi in (300, 400, 500, 600):
-            b = QPushButton(str(dpi), box)
+        lo, hi = CUSTOM_DPI_RANGE
+        for dpi in PRESET_DPIS + (CUSTOM_DPI_ID,):
+            custom = dpi == CUSTOM_DPI_ID
+            b = QPushButton("Custom" if custom else str(dpi), box)
             b.setObjectName("segment")
             b.setCheckable(True)
             b.setMinimumWidth(56)
-            b.setToolTip(f"{dpi} pixels per inch")
-            b.setAccessibleName(f"{dpi} DPI")
+            b.setToolTip(f"Enter any resolution from {lo} to {hi} DPI" if custom else f"{dpi} pixels per inch")
+            b.setAccessibleName("Custom DPI" if custom else f"{dpi} DPI")
             self.dpi_group.addButton(b, dpi)
-            setattr(self, f"btn_dpi_{dpi}", b)
+            setattr(self, "btn_dpi_custom" if custom else f"btn_dpi_{dpi}", b)
             dpi_flow.addWidget(b)
         self.btn_dpi_300.setChecked(True)
         fl.addLayout(dpi_flow)
+
+        # Custom DPI value; shown while the Custom button is selected
+        self._custom_dpi_mode = False
+        self.custom_dpi_widget = QWidget(box)
+        crow = QHBoxLayout(self.custom_dpi_widget)
+        crow.setContentsMargins(0, 0, 0, 0)
+        crow.addWidget(_label("Custom DPI", parent=self.custom_dpi_widget))
+        self.spin_custom_dpi = QSpinBox(self.custom_dpi_widget)
+        self.spin_custom_dpi.setRange(lo, hi)
+        self.spin_custom_dpi.setSuffix(" DPI")
+        self.spin_custom_dpi.setValue(300)
+        self.spin_custom_dpi.setToolTip(f"Print resolution from {lo} to {hi} DPI")
+        self.spin_custom_dpi.setAccessibleName("Custom DPI value")
+        crow.addWidget(self.spin_custom_dpi, 1)
+        self.custom_dpi_widget.setVisible(False)
+        fl.addWidget(self.custom_dpi_widget)
 
         self.lbl_meta_note = _label(
             "Only the stored print resolution changes. Pixels, alpha, colours and file format (PNG or JPEG) "
@@ -272,14 +296,6 @@ class ControlsView(QWidget):
 
         # Advanced sizing
         self.adv_sizing = CollapsibleSection("Advanced size options", box)
-        crow = QHBoxLayout()
-        crow.addWidget(_label("Custom DPI", parent=self.adv_sizing.body))
-        self.spin_custom_dpi = QSpinBox(self.adv_sizing.body)
-        self.spin_custom_dpi.setRange(72, 1200)
-        self.spin_custom_dpi.setValue(300)
-        self.spin_custom_dpi.setAccessibleName("Custom DPI")
-        crow.addWidget(self.spin_custom_dpi, 1)
-        self.adv_sizing.body_layout.addLayout(crow)
         self.adv_sizing.body_layout.addWidget(_label("Pixel canvas from source size", "muted", parent=self.adv_sizing.body))
         mult_flow = FlowLayout(None, 6, 6)
         self.btn_mult_orig = QPushButton("1×", self.adv_sizing.body)
@@ -425,8 +441,7 @@ class ControlsView(QWidget):
             self.spin_print_w.setValue(cfg.print_width)
             self.spin_print_h.setValue(cfg.print_height)
             (self.rb_dim_print if cfg.dimension_mode == "print_size" else self.rb_dim_pixel).setChecked(True)
-            self.spin_custom_dpi.setValue(cfg.default_dpi)
-            self._sync_dpi_buttons(cfg.default_dpi)
+            self._set_dpi(cfg.default_dpi)
             self.set_prefer_gpu(cfg.prefer_gpu)
         finally:
             self._updating_fields = False
@@ -517,8 +532,7 @@ class ControlsView(QWidget):
         self.rb_dim_pixel.setChecked(True)
         self.spin_px_w.setValue(4200)
         self.spin_px_h.setValue(4800)
-        self.spin_custom_dpi.setValue(300)
-        self._sync_dpi_buttons(300)
+        self._set_dpi(300)
         self._updating_fields = False
         self._refresh_calculations()
         self._trigger_update()
@@ -530,8 +544,7 @@ class ControlsView(QWidget):
         self.combo_unit.setCurrentText("in")
         self.spin_print_w.setValue(14.0)
         self.spin_print_h.setValue(16.0)
-        self.spin_custom_dpi.setValue(300)
-        self._sync_dpi_buttons(300)
+        self._set_dpi(300)
         self._updating_fields = False
         self._refresh_calculations()
         self._trigger_update()
@@ -584,18 +597,28 @@ class ControlsView(QWidget):
         self._trigger_update()
 
     def _sync_dpi_buttons(self, dpi: int):
-        btn = self.dpi_group.button(dpi)
-        if btn:
-            btn.setChecked(True)
-        else:
-            self.dpi_group.setExclusive(False)
-            for b in self.dpi_group.buttons():
-                b.setChecked(False)
-            self.dpi_group.setExclusive(True)
+        """Checks the preset matching `dpi`, or Custom (with its field shown) for any other value.
+        While Custom is selected, typing a preset value keeps Custom selected."""
+        preset = self.dpi_group.button(dpi) if dpi != CUSTOM_DPI_ID else None
+        custom = self._custom_dpi_mode or preset is None
+        (self.btn_dpi_custom if custom else preset).setChecked(True)
+        self.custom_dpi_widget.setVisible(custom)
+
+    def _set_dpi(self, dpi: int):
+        """Programmatic DPI change (presets, restored settings); the caller refreshes."""
+        self._custom_dpi_mode = dpi not in PRESET_DPIS
+        self.spin_custom_dpi.setValue(dpi)
+        self._sync_dpi_buttons(dpi)
 
     def _on_dpi_btn_clicked(self, dpi: int):
+        if dpi == CUSTOM_DPI_ID:
+            self._custom_dpi_mode = True
+            self._sync_dpi_buttons(self.spin_custom_dpi.value())
+            self.spin_custom_dpi.setFocus()
+            self.spin_custom_dpi.selectAll()
+            return
         self._updating_fields = True
-        self.spin_custom_dpi.setValue(dpi)
+        self._set_dpi(dpi)
         self._updating_fields = False
         self._refresh_calculations()
         self._trigger_update()
@@ -668,7 +691,10 @@ class ControlsView(QWidget):
             self.lbl_scale_info.setText("Import an image to see the scale")
             self.lbl_resource_info.setText("–")
         mp = target_w * target_h / 1e6
-        if max(target_w, target_h) > UPLOAD_MAX_PIXELS_PER_AXIS:
+        if max(target_w, target_h) > MAX_CANVAS_AXIS_PX:
+            name, text = "error", (f"Too large to export: over the {MAX_CANVAS_AXIS_PX:,} px per-axis limit. "
+                                   "Lower the DPI or the print size.")
+        elif max(target_w, target_h) > UPLOAD_MAX_PIXELS_PER_AXIS:
             name, text = "error", f"Exceeds {UPLOAD_MAX_PIXELS_PER_AXIS:,} px per axis"
         elif mp > 65:
             name, text = "warn", "Dimensions OK; a canvas this large may exceed 50 MB. The saved file is checked after export."

@@ -25,6 +25,7 @@
 
 ## Output size
 
+- **DPI choices:** 300, 400, 500, 600, 800 and 1000, or **Custom** for any whole value from 72 to 1200 DPI. Custom shows a field under the buttons; a custom value is remembered like the presets.
 - **Print size + DPI:** you enter the physical size; the pixels follow from it.
   - `pixels = round(inches × DPI)`
   - `pixels = round(cm / 2.54 × DPI)`
@@ -43,6 +44,10 @@
 | 400 | 5600 × 6400 | 35.8 |
 | 500 | 7000 × 8000 | 56.0 |
 | 600 | 8400 × 9600 | 80.6 |
+| 800 | 11200 × 12800 | 143.4 |
+| 1000 | 14000 × 16000 | 224.0 |
+
+Very high resolutions need a lot of memory: the summary shows the estimate, and jobs that would not fit in free RAM are refused before processing. Canvases over 30,000 px on either side cannot be exported, and the summary says so as soon as the size and DPI would exceed it.
 
 **Composition:**
 - **Fit with padding** keeps the whole image. Padding is transparent for PNG, and the chosen background colour for JPEG.
