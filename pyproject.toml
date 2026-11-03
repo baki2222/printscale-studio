@@ -1,7 +1,7 @@
 [project]
 name = "printscale-studio"
 dynamic = ["version"]
-description = "Offline Windows image upscaler and print export app with transparent PNG support, AI enhancement, and 300-600 DPI controls."
+description = "Offline Windows image upscaler and print export app with transparent PNG support, AI enhancement, and 300-1000 DPI presets plus custom DPI."
 readme = "README.md"
 license = "MIT"
 license-files = ["LICENSE", "THIRD_PARTY_LICENSES.md", "LICENSES/*.txt"]

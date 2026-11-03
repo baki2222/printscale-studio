@@ -3,6 +3,12 @@
 All notable changes to PrintScale Studio. Versions follow `MAJOR.MINOR.PATCH`. Releases before 1.0.6 were
 built and tested privately, before the source was published.
 
+## [Unreleased]
+
+### Added
+- **More DPI choices:** 800 and 1000 DPI buttons, and a **Custom** button that shows a field for any whole value from 72 to 1200 DPI (previously this field was hidden under Advanced size options). Custom values are saved and restored with your settings.
+- **Size warning:** the output summary now warns as soon as the print size and DPI would exceed the 30,000 px per-side limit, instead of only refusing the export.
+
 ## [1.0.6] - 2026-10-18
 
 First public open-source release.

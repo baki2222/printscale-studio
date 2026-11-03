@@ -12,7 +12,7 @@
 </p>
 
 **PrintScale Studio** is an offline Windows desktop app for enlarging artwork and photos to exact print sizes and
-exporting print-ready PNG or JPEG files at 300–600 DPI. It keeps transparency, writes correct resolution metadata,
+exporting print-ready PNG or JPEG files at 300–1000 DPI, or any custom resolution from 72 to 1200 DPI. It keeps transparency, writes correct resolution metadata,
 and checks every file after saving it. Images never leave your computer.
 
 ![PrintScale Studio comparing an original and its 4200 × 4800 px export](docs/images/screenshot-dark.png)
@@ -36,7 +36,7 @@ All releases: [github.com/baki2222/printscale-studio/releases](https://github.co
 1. Start **PrintScale Studio** from the Start menu (or `PrintScaleStudio.exe` in the portable folder).
 2. **Add Images…**, or drop PNG, JPEG, WebP or TIFF files onto the Images panel.
 3. Pick a **processing mode**. **Preserve Artwork** is the safe default for logos, lettering and print designs.
-4. Under **Output Size**, choose a pixel canvas (for example the **4200 × 4800 px** preset) or a print size (for example **14 × 16 in**), then a DPI (300, 400, 500 or 600).
+4. Under **Output Size**, choose a pixel canvas (for example the **4200 × 4800 px** preset) or a print size (for example **14 × 16 in**), then a DPI: 300, 400, 500, 600, 800 or 1000, or **Custom** for any value from 72 to 1200.
 5. Use **Preview Crop** to see a real processed region at 100%, then **Export Selected** (one image) or **Export Queue** (all images).
 6. The summary shows what was written, read back from the saved file: pixels, DPI, print size, format, alpha and file size.
 
@@ -70,9 +70,9 @@ All releases: [github.com/baki2222/printscale-studio/releases](https://github.co
 DPI is print-size information, not image detail. Adding DPI metadata alone adds no pixels. What matters is the
 pixel count for the print size you need:
 
-| Print size | 300 DPI | 400 DPI | 500 DPI | 600 DPI |
-|---|---|---|---|---|
-| 14 × 16 in | 4200 × 4800 px | 5600 × 6400 px | 7000 × 8000 px | 8400 × 9600 px |
+| Print size | 300 DPI | 400 DPI | 500 DPI | 600 DPI | 800 DPI | 1000 DPI |
+|---|---|---|---|---|---|---|
+| 14 × 16 in | 4200 × 4800 px | 5600 × 6400 px | 7000 × 8000 px | 8400 × 9600 px | 11200 × 12800 px | 14000 × 16000 px |
 
 The reverse also holds: 4200 × 4800 px at 500 DPI is 8.4 × 9.6 in. AI enlargement can sharpen soft edges, but it
 can also change lettering and textures or exaggerate fringes that were already in the source, so always inspect
