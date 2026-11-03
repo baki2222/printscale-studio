@@ -3,7 +3,7 @@
 
 #define MyAppName "PrintScale Studio"
 #ifndef MyAppVersion
-  #define MyAppVersion "1.0.6"
+  #define MyAppVersion "1.1.0"
 #endif
 #define MyAppPublisher "VitalRove"
 #define MyAppURL "https://github.com/baki2222/printscale-studio"

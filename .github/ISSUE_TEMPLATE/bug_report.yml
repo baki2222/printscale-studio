@@ -13,7 +13,7 @@ body:
     attributes:
       label: PrintScale Studio version
       description: Shown in the title bar and in Help › About.
-      placeholder: "1.0.6"
+      placeholder: "1.1.0"
     validations:
       required: true
   - type: dropdown

@@ -1,6 +1,6 @@
 """Print release notes for a version: its CHANGELOG section plus install and checksum instructions.
 
-    python scripts/release_notes.py 1.0.6 > notes.md
+    python scripts/release_notes.py 1.1.0 > notes.md
 """
 import os
 import re
