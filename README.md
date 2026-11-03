@@ -21,15 +21,15 @@ and checks every file after saving it. Images never leave your computer.
 
 | | |
 |---|---|
-| **Installer (recommended)** | [PrintScaleStudio_Setup_v1.0.6.exe](https://github.com/baki2222/printscale-studio/releases/download/v1.0.6/PrintScaleStudio_Setup_v1.0.6.exe): installs for the current user; no administrator rights needed |
-| **Portable** | [PrintScaleStudio_v1.0.6_Windows_x64_Portable.zip](https://github.com/baki2222/printscale-studio/releases/download/v1.0.6/PrintScaleStudio_v1.0.6_Windows_x64_Portable.zip): unzip anywhere and run `PrintScaleStudio\PrintScaleStudio.exe` |
-| **Checksums** | [SHA256SUMS.txt](https://github.com/baki2222/printscale-studio/releases/download/v1.0.6/SHA256SUMS.txt) |
+| **Installer (recommended)** | [PrintScaleStudio_Setup_v1.1.0.exe](https://github.com/baki2222/printscale-studio/releases/download/v1.1.0/PrintScaleStudio_Setup_v1.1.0.exe): installs for the current user; no administrator rights needed |
+| **Portable** | [PrintScaleStudio_v1.1.0_Windows_x64_Portable.zip](https://github.com/baki2222/printscale-studio/releases/download/v1.1.0/PrintScaleStudio_v1.1.0_Windows_x64_Portable.zip): unzip anywhere and run `PrintScaleStudio\PrintScaleStudio.exe` |
+| **Checksums** | [SHA256SUMS.txt](https://github.com/baki2222/printscale-studio/releases/download/v1.1.0/SHA256SUMS.txt) |
 
 All releases: [github.com/baki2222/printscale-studio/releases](https://github.com/baki2222/printscale-studio/releases)
 
 - **Requirements:** Windows 11 x64 and about 400 MB of free disk space. Windows 10 x64 is expected to work but has not been tested.
 - **GPU:** the AI modes use any DirectX 12 GPU through DirectML. Without one they run on the CPU, which is slower but gives the same kind of result. Preserve Artwork always runs on the CPU.
-- **Unsigned builds:** the files are not code-signed, so Windows SmartScreen may show "Windows protected your PC". Check the SHA-256 against `SHA256SUMS.txt` (`Get-FileHash .\PrintScaleStudio_Setup_v1.0.6.exe`), then choose **More info › Run anyway**.
+- **Unsigned builds:** the files are not code-signed, so Windows SmartScreen may show "Windows protected your PC". Check the SHA-256 against `SHA256SUMS.txt` (`Get-FileHash .\PrintScaleStudio_Setup_v1.1.0.exe`), then choose **More info › Run anyway**.
 
 ## First use
 

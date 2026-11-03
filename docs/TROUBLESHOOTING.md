@@ -4,7 +4,7 @@
 
 - **Why:** the installer and EXE are not code-signed, so SmartScreen warns about them.
 - **What to do:**
-  1. Check the file's SHA-256 against `SHA256SUMS.txt` from the same release, using `Get-FileHash .\PrintScaleStudio_Setup_v1.0.6.exe`.
+  1. Check the file's SHA-256 against `SHA256SUMS.txt` from the same release, using `Get-FileHash .\PrintScaleStudio_Setup_v1.1.0.exe`.
   2. If it matches, choose **More info › Run anyway**.
 
 ## The AI modes run on the CPU, or are slow
